@@ -60,6 +60,7 @@ export const App = () => {
   useEffect(() => {
     if (query !== '') {
       setLoading(true);
+
       fetchImages(query, page)
         .then(({ hits, totalHits }) => {
           if (!hits.length) {
@@ -84,13 +85,11 @@ export const App = () => {
     setPage(prev => prev + 1);
   };
 
-  const toggleModal = (tags, largeImageURL) => {
+  const toggleModal = ({ tags, largeImageURL }) => {
+    console.log(toggleModal);
     setShowModal(!showModal);
     setTags(tags);
     setLargeImageURL(largeImageURL);
-    // showModal: !this.state.showModal,
-    // largeImageURL,
-    // tags,
   };
 
   return (
