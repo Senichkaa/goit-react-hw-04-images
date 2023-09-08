@@ -7,7 +7,7 @@ import { RotatingLines } from 'react-loader-spinner';
 import { Modal } from './Modal/Modal';
 
 export const App = () => {
-  const [query, setQuery] = useState(0);
+  const [query, setQuery] = useState('');
   const [gallery, setGallery] = useState([]);
   const [page, setPage] = useState(0);
   const [error, setError] = useState(null);
@@ -15,7 +15,7 @@ export const App = () => {
   const [totalImages, setTotalImages] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [tags, setTags] = useState(null);
-  const [largeImageURL, setlargeImageURL] = useState(null);
+  const [largeImageURL, setLargeImageURL] = useState(null);
 
   // state = {
   //   query: '',
@@ -84,10 +84,10 @@ export const App = () => {
     setPage(prev => prev + 1);
   };
 
-  const toggleModal = () => {
+  const toggleModal = (tags, largeImageURL) => {
     setShowModal(!showModal);
     setTags(tags);
-    setlargeImageURL(largeImageURL);
+    setLargeImageURL(largeImageURL);
     // showModal: !this.state.showModal,
     // largeImageURL,
     // tags,
@@ -114,7 +114,6 @@ export const App = () => {
       {gallery.length !== 0 && page < Math.ceil(totalImages / 12) && (
         <Button handleLoadMoreClick={handleLoadMoreClick} />
       )}
-
       {showModal && (
         <Modal
           largeImageURL={largeImageURL}
