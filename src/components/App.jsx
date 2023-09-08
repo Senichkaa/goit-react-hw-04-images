@@ -86,7 +86,6 @@ export const App = () => {
   };
 
   const toggleModal = ({ tags, largeImageURL }) => {
-    console.log(toggleModal);
     setShowModal(!showModal);
     setTags(tags);
     setLargeImageURL(largeImageURL);

@@ -6,14 +6,12 @@ const modalRoot = document.querySelector('#modal-root');
 
 export const Modal = ({ onClose, tags, largeImageURL }) => {
   const handleBackdropClick = event => {
-    if (event.target === event.currentTarget) {
-      onClose();
-    }
+    onClose(tags, largeImageURL);
   };
   useEffect(() => {
     const handleKeyDown = event => {
       if (event.code === 'Escape') {
-        onClose();
+        onClose(tags, largeImageURL);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -21,7 +19,7 @@ export const Modal = ({ onClose, tags, largeImageURL }) => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [onClose]);
+  }, [onClose, tags, largeImageURL]);
   // componentDidMount() {
   //   window.addEventListener('keydown', this.handleKeyDown);
   // }
