@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { Searchbar } from './Searchbar/Searchbar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { fetchImages } from './fetch-api.js';
@@ -6,98 +6,122 @@ import { Button } from './Button/Button';
 import { RotatingLines } from 'react-loader-spinner';
 import { Modal } from './Modal/Modal';
 
-export class App extends Component {
-  state = {
-    query: '',
-    gallery: [],
-    page: 0,
-    error: null,
-    loading: false,
-    totalPages: 1,
-    showModal: false,
-    largeImageURL: null,
-    tags: null,
-    totalImages: null,
-  };
+export const App = () => {
+  const [query, setQuery] = useState(0);
+  const [gallery, setGallery] = useState([]);
+  const [page, setPage] = useState(0);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [totalImages, setTotalImages] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [tags, setTags] = useState(null);
+  const [largeImageURL, setlargeImageURL] = useState(null);
 
-  componentDidUpdate(prevProps, prevState) {
-    if (
-      this.state.page !== prevState.page ||
-      this.state.query !== prevState.query
-    ) {
-      this.setState({ loading: true });
-      fetchImages(this.state.query, this.state.page)
-        .then(({ hits }) =>
-          this.setState(prevState => ({
-            gallery: [...prevState.gallery, ...hits],
-          }))
-        )
-        .catch(error => this.setState({ error }))
-        .finally(loading => this.setState({ loading: false }));
+  // state = {
+  //   query: '',
+  //   gallery: [],
+  //   page: 0,
+  //   error: null,
+  //   loading: false,
+  //   totalPages: 1,
+  //   showModal: false,
+  //   largeImageURL: null,
+  //   tags: null,
+  //   totalImages: null,
+  // };
+
+  // componentDidUpdate(prevProps, prevState) {
+  //   if (
+  //     this.state.page !== prevState.page ||
+  //     this.state.query !== prevState.query
+  //   ) {
+  //     this.setState({ loading: true });
+  //     fetchImages(this.state.query, this.state.page)
+  //       .then(({ hits }) =>
+  //         this.setState(prevState => ({
+  //           gallery: [...prevState.gallery, ...hits],
+  //         }))
+  //       )
+  //       .catch(error => this.setState({ error }))
+  //       .finally(loading => this.setState({ loading: false }));
+  //   }
+
+  //   if (this.state.query !== prevState.query) {
+  //     this.setState({ loading: true });
+  //     fetchImages(this.state.query, this.state.page)
+  //       .then(({ hits, totalHits }) =>
+  //         this.setState({ gallery: hits, totalImages: totalHits })
+  //       )
+  //       .catch(error => this.setState({ error }))
+  //       .finally(loading => this.setState({ loading: false }));
+  //   }
+  // }
+
+  useEffect(() => {
+    if (query !== '') {
+      setLoading(true);
+      fetchImages(query, page)
+        .then(({ hits, totalHits }) => {
+          if (!hits.length) {
+            return;
+          } else {
+            setGallery(prev => [...prev, ...hits]);
+            setTotalImages(totalHits);
+          }
+        })
+        .catch(error => setError(error))
+        .finally(() => setLoading(false));
     }
+  }, [page, query]);
 
-    if (this.state.query !== prevState.query) {
-      this.setState({ loading: true });
-      fetchImages(this.state.query, this.state.page)
-        .then(({ hits, totalHits }) =>
-          this.setState({ gallery: hits, totalImages: totalHits })
-        )
-        .catch(error => this.setState({ error }))
-        .finally(loading => this.setState({ loading: false }));
-    }
-  }
-
-  handleSubmitSearch = query => {
-    this.setState({ query, gallery: [], page: 1 });
+  const handleSubmitSearch = query => {
+    setQuery(query);
+    setPage(1);
+    setGallery([]);
   };
 
-  handleLoadMoreClick = () => {
-    this.setState(prevState => ({ page: prevState.page + 1 }));
+  const handleLoadMoreClick = () => {
+    setPage(prev => prev + 1);
   };
 
-  toggleModal = ({ largeImageURL, tags }) => {
-    this.setState(({ showModal }) => ({
-      showModal: !this.state.showModal,
-      largeImageURL,
-      tags,
-    }));
+  const toggleModal = () => {
+    setShowModal(!showModal);
+    setTags(tags);
+    setlargeImageURL(largeImageURL);
+    // showModal: !this.state.showModal,
+    // largeImageURL,
+    // tags,
   };
 
-  render() {
-    return (
-      <>
-        <Searchbar onSubmit={this.handleSubmitSearch} />
-        {!this.state.loading && this.state.error && (
-          <h1>Hold on! Something went wrong. Reboot a page, please.</h1>
-        )}
-        {this.state.loading && (
-          <RotatingLines
-            strokeColor="grey"
-            strokeWidth="5"
-            animationDuration="0.75"
-            width="96"
-            visible={true}
-          />
-        )}
-        {this.state.gallery.length > 0 && (
-          <ImageGallery
-            gallery={this.state.gallery}
-            onImageClick={this.toggleModal}
-          />
-        )}
-        {this.state.gallery.length !== 0 &&
-          this.state.page < Math.ceil(this.state.totalImages / 12) && (
-            <Button handleLoadMoreClick={this.handleLoadMoreClick} />
-          )}
+  return (
+    <>
+      <Searchbar onSubmit={handleSubmitSearch} />
+      {!loading && error && (
+        <h1>Hold on! Something went wrong. Reboot a page, please.</h1>
+      )}
+      {loading && (
+        <RotatingLines
+          strokeColor="grey"
+          strokeWidth="5"
+          animationDuration="0.75"
+          width="96"
+          visible={true}
+        />
+      )}
+      {gallery.length > 0 && (
+        <ImageGallery gallery={gallery} onImageClick={toggleModal} />
+      )}
+      {gallery.length !== 0 && page < Math.ceil(totalImages / 12) && (
+        <Button handleLoadMoreClick={handleLoadMoreClick} />
+      )}
 
-        {this.state.showModal && (
-          <Modal
-            largeImageURL={this.state.largeImageURL}
-            tags={this.state.tags}
-            onClose={this.toggleModal}
-          />
-        )}
-      </>
-    );
-  }
-}
+      {showModal && (
+        <Modal
+          largeImageURL={largeImageURL}
+          tags={tags}
+          onClose={toggleModal}
+        />
+      )}
+    </>
+  );
+};
